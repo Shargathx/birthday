@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Palju õnne sünnipäevaks!</title>
+<meta property="og:title" content="🎂 A birthday surprise for you">
+<meta property="og:description" content="Pop some balloons. Blow out the candles.">
+<style>
+  :root{ --accent:#ffd166; --pink:#ff6b9d; --ink:#fff; }
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);text-align:center;
+    background:linear-gradient(180deg,#1b0b3a 0%,#4a2275 45%,#c9658f 100%);
+    height:100svh;overflow:hidden;user-select:none;-webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  /* ---------- title ---------- */
+  header{position:fixed;top:0;left:0;right:0;z-index:6;padding:22px 16px 0;pointer-events:none}
+  h1{font-size:clamp(1.8rem,7vw,3.6rem);line-height:1.1;text-shadow:0 4px 24px rgba(0,0,0,.4)}
+  /* the name gets a dark outline + shadow instead of a box, so it stays readable over yellow/orange balloons */
+  h1 span{color:var(--accent);-webkit-text-stroke:.16em #1b0b3a;paint-order:stroke fill;
+          text-shadow:0 2px 0 #1b0b3a,0 4px 18px rgba(27,11,58,.9),0 0 30px rgba(27,11,58,.7)}
+  .sub{opacity:.85;margin-top:6px;font-size:clamp(.95rem,2.6vw,1.15rem)}
+
+  /* ---------- balloon layers (parallax) ---------- */
+  .layer{position:fixed;inset:-40px;z-index:1;will-change:transform;pointer-events:none}
+  .layer.d0{z-index:0}.layer.d1{z-index:1}.layer.d2{z-index:2}.layer.d3{z-index:4}
+  .balloon{position:absolute;cursor:pointer;animation:spawn .6s cubic-bezier(.3,1.6,.5,1) both}
+  .balloon .sway{animation:sway var(--dur,6s) ease-in-out var(--delay,0s) infinite}
+  .balloon .body{
+    width:var(--s);height:calc(var(--s)*1.2);position:relative;
+    border-radius:50% 50% 50% 50%/58% 58% 42% 42%;
+    background:radial-gradient(circle at 32% 28%,#fff9 0 8%,transparent 22%),
+               radial-gradient(circle at 50% 40%,var(--c),color-mix(in srgb,var(--c) 55%,#000) 120%);
+    box-shadow:inset -6px -10px 18px #0003;
+    filter:blur(var(--blur,0px));opacity:var(--op,1);
+  }
+  .balloon .body{pointer-events:auto}
+  .balloon .body::before{content:"";position:absolute;inset:-8px}   /* forgiving tap area for small, distant balloons */
+  .balloon .body::after{content:"";position:absolute;left:50%;bottom:-6px;width:10px;height:9px;
+    transform:translateX(-50%);background:var(--c);clip-path:polygon(50% 0,100% 100%,0 100%);
+    filter:brightness(.8)}
+  .balloon .string{width:1px;height:calc(var(--s)*1.5);margin:5px auto 0;background:#fff6;
+    opacity:var(--op,1);transform-origin:top;animation:str var(--dur,6s) ease-in-out var(--delay,0s) infinite}
+  .balloon.rise{animation:rise var(--rd,9s) linear forwards}
+  @keyframes spawn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes sway{0%,100%{transform:translate(0,0) rotate(-3deg)}50%{transform:translate(10px,-16px) rotate(3deg)}}
+  @keyframes str{0%,100%{transform:skewX(4deg)}50%{transform:skewX(-4deg)}}
+  @keyframes rise{from{transform:translateY(0)}to{transform:translateY(-130vh)}}
+
+  /* ---------- cake ---------- */
+  .stage{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 3vh);z-index:5;
+         display:flex;flex-direction:column;align-items:center;pointer-events:none}
+  .cake{position:relative;width:280px;height:200px;margin-top:70px;pointer-events:none}
+  .layerc,.plate{pointer-events:auto;cursor:default}   /* solid: nothing behind the cake can be hovered or clicked */
+  .layerc{position:absolute;left:50%;transform:translateX(-50%);border-radius:14px;overflow:hidden;
+          box-shadow:inset 0 -8px 0 #0001}
+  .l1{bottom:0;width:280px;height:72px;background:#ff8fb8}
+  .l2{bottom:72px;width:215px;height:62px;background:#ffc2d8}
+  .l3{bottom:134px;width:150px;height:46px;background:#fff0f5}
+  .drip{position:absolute;top:0;left:0;right:0;height:20px;
+        background:repeating-radial-gradient(circle at 14px 0,#fff 0 13px,transparent 14px 28px);opacity:.95}
+  .plate{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:330px;height:16px;
+         border-radius:50%;background:#ffffffcc;box-shadow:0 8px 20px #0005}
+  .candles{position:absolute;bottom:180px;left:50%;transform:translateX(-50%);
+           display:flex;gap:var(--gap,14px);align-items:flex-end;pointer-events:auto}
+  .candle{position:relative;width:10px;height:42px;border-radius:3px;cursor:pointer;
+          background:repeating-linear-gradient(45deg,#fff 0 6px,var(--pink) 6px 12px)}
+  .candle::before{content:"";position:absolute;inset:-34px -8px -4px}  /* bigger tap target */
+  .flame{position:absolute;left:50%;top:-24px;width:14px;height:22px;
+         background:radial-gradient(ellipse at 50% 70%,#fff6b0,#ffb703 60%,#fb5607);
+         border-radius:50%/60% 60% 40% 40%;box-shadow:0 0 22px 8px rgba(255,183,3,.55);
+         animation:flick .25s infinite alternate;transform-origin:50% 100%;pointer-events:none}
+  .candle.out{pointer-events:none;cursor:default}
+  .candle.out .flame{display:none}
+  .candle.out::after{content:"";position:absolute;left:50%;top:-30px;width:4px;height:26px;
+         background:linear-gradient(#fff8,transparent);border-radius:4px;animation:smoke 1.6s forwards}
+  @keyframes flick{from{transform:translateX(-50%) scale(1) rotate(-3deg)}to{transform:translateX(-50%) scale(1.08,.94) rotate(3deg)}}
+  @keyframes smoke{to{transform:translateY(-40px);opacity:0}}
+  .hint{margin-top:26px;font-size:.95rem;opacity:.85;transition:opacity .5s;pointer-events:none}
+
+  /* ---------- lights-out & finale ---------- */
+  #dim{position:fixed;inset:0;z-index:3;background:radial-gradient(circle at 50% 85%,#0000 0,#000d 70%);
+       opacity:0;transition:opacity 1s;pointer-events:none}
+  #dim.on{opacity:1}
+  #fx{position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:20;pointer-events:none}   /* explicit size: inset alone doesn't stretch a canvas, so on HiDPI screens effects drifted away from the click point */
+  #finale{position:fixed;left:50%;top:clamp(110px,20vh,170px);transform:translate(-50%,20px);z-index:7;
+          width:min(92vw,520px);opacity:0;pointer-events:none;transition:all .9s}
+  #finale.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  .message{background:#ffffff26;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+           border-radius:20px;padding:20px 22px;font-size:clamp(1rem,3.4vw,1.2rem);line-height:1.55;
+           box-shadow:0 10px 40px #0004}
+  .message small{display:block;margin-top:10px;opacity:.85}
+  button{font:inherit;cursor:pointer;border:0;border-radius:999px;padding:10px 20px;margin-top:14px;
+         background:var(--accent);color:#2b1055;font-weight:700}
+  #mute{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 14px);right:14px;z-index:30;width:44px;height:44px;margin:0;padding:0;
+        font-size:1.2rem;background:#ffffff2e;color:#fff;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+        box-shadow:0 2px 10px #0003;display:flex;align-items:center;justify-content:center}
+  @media (prefers-reduced-motion:reduce){.balloon .sway,.balloon .string,.flame{animation:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Palju õnne sünnipäevaks, <span id="name">emps</span>! 🎉</h1>
+  <p class="sub" id="sub"></p>
+</header>
+
+<div class="layer d0" id="L0"></div>
+<div class="layer d1" id="L1"></div>
+<div class="layer d2" id="L2"></div>
+<div id="dim"></div>
+<div class="layer d3" id="L3"></div>
+
+<div id="finale">
+  <div class="message"><span id="msg"></span><small id="from"></small></div>
+  <button id="again">🕯️ Süüta küünlad uuesti</button>
+</div>
+
+<div class="stage">
+  <div class="cake">
+    <div class="candles" id="candles"></div>
+    <div class="layerc l3"><div class="drip"></div></div>
+    <div class="layerc l2"><div class="drip"></div></div>
+    <div class="layerc l1"><div class="drip"></div></div>
+    <div class="plate"></div>
+  </div>
+  <p class="hint" id="hint">Tee õhupallid katki 🎈 ja puhu küündlad ära! ✨</p>
+</div>
+
+<button id="mute" aria-label="Mute music" title="Music on/off">🔊</button>
+<canvas id="fx"></canvas>
+
+<script>
+/* ================= CONFIG (edit here, or override via URL) ================= */
+const CONFIG = {
+  name: "emps",
+  from: "Martin",
+  age: 5,                                   // candles, max 10
+  subtitle: "Täna on Sinu sünnipäev!",
+  message: "Palju õnne ja jaksu! Ja et neid sünnipäevasid tuleks veel!",
+};
+const q = new URLSearchParams(location.search);
+for (const k of ["name","from","message","subtitle"]) if (q.get(k)) CONFIG[k] = q.get(k);
+if (q.get("age")) CONFIG.age = Math.max(1, Math.min(10, parseInt(q.get("age"),10) || CONFIG.age));
+
+document.getElementById("name").textContent = CONFIG.name;
+document.getElementById("sub").textContent = CONFIG.subtitle;
+document.getElementById("msg").textContent = CONFIG.message;
+document.getElementById("from").textContent = "— " + CONFIG.from;
+document.title = `Sünnipäev, ${CONFIG.name}!`;
+
+const $ = id => document.getElementById(id);
+const rnd = (a,b) => a + Math.random()*(b-a);
+const COLORS = ["#ff5d73","#ffd166","#06d6a0","#4cc9f0","#b388ff","#ff9f1c","#f15bb5"];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ================= sound: pops + synthesized "Happy Birthday" (no audio files needed) ================= */
+let actx, master;                               // master gain = the mute switch for everything
+function audio() {
+  if (!actx) {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    master = actx.createGain(); master.gain.value = muted ? 0 : 1; master.connect(actx.destination);
+  }
+  return actx;
+}
+function pop(vol = .25) {
+  try {
+    if (muted) return;
+    const a = audio(), n = a.sampleRate * .12, buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/n, 4);
+    const s = a.createBufferSource(), g = a.createGain();
+    s.buffer = buf; g.gain.value = vol; s.connect(g).connect(master); s.start();
+  } catch (e) {}
+}
+
+// --- candle blown out: a soft breath of air, then a tiny wick fizzle ---
+function noiseBuf(a, secs) {
+  const n = a.sampleRate * secs, b = a.createBuffer(1, n, a.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = Math.random()*2 - 1;
+  return b;
+}
+function blowOut(vol = .41) {                    // 25% quieter than the first version (.55)
+  try {
+    if (muted) return;
+    const a = audio(), t = a.currentTime;
+    const breath = a.createBufferSource(), bp = a.createBiquadFilter(), g = a.createGain();
+    breath.buffer = noiseBuf(a, .6);
+    bp.type = "bandpass"; bp.Q.value = .9;
+    bp.frequency.setValueAtTime(1900 + rnd(-250,250), t); bp.frequency.exponentialRampToValueAtTime(500, t + .38);   // air sweeping down
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .05); g.gain.exponentialRampToValueAtTime(.001, t + .45);
+    breath.connect(bp).connect(g).connect(master); breath.start(t);
+    const fz = a.createBufferSource(), hp = a.createBiquadFilter(), fg = a.createGain();   // fizzle
+    fz.buffer = noiseBuf(a, .4); hp.type = "highpass"; hp.frequency.value = 5500;
+    fg.gain.setValueAtTime(0, t + .1); fg.gain.linearRampToValueAtTime(vol*.14, t + .14); fg.gain.exponentialRampToValueAtTime(.001, t + .45);
+    fz.connect(hp).connect(fg).connect(master); fz.start(t + .1);
+  } catch (e) {}
+}
+
+// --- party popper: a muffled "pop" (low thump + short airy burst), then soft paper streamers fluttering down.
+// Everything stays below ~3 kHz on purpose: bright high-frequency sparkle is what made the first version sound like glass.
+function partyPopper(delay = 0, vol = .34) {
+  try {
+    if (muted) return;
+    const a = audio(), t = a.currentTime + delay, pitch = rnd(.9, 1.15);
+    const th = a.createOscillator(), tg = a.createGain();                                    // body of the pop
+    th.type = "sine"; th.frequency.setValueAtTime(300*pitch, t); th.frequency.exponentialRampToValueAtTime(65, t + .09);
+    tg.gain.setValueAtTime(vol, t); tg.gain.exponentialRampToValueAtTime(.001, t + .12);
+    th.connect(tg).connect(master); th.start(t); th.stop(t + .15);
+    const bang = a.createBufferSource(), lp = a.createBiquadFilter(), bg = a.createGain();   // puff of air
+    bang.buffer = noiseBuf(a, .2); lp.type = "lowpass"; lp.Q.value = .5;
+    lp.frequency.setValueAtTime(2200*pitch, t); lp.frequency.exponentialRampToValueAtTime(350, t + .08);
+    bg.gain.setValueAtTime(vol*.9, t); bg.gain.exponentialRampToValueAtTime(.001, t + .1);
+    bang.connect(lp).connect(bg).connect(master); bang.start(t);
+    const fl = a.createBufferSource(), fb = a.createBiquadFilter(), fe = a.createGain(), ft = a.createGain(), lfo = a.createOscillator(), lg = a.createGain();
+    fl.buffer = noiseBuf(a, .8); fb.type = "bandpass"; fb.Q.value = .7;                      // paper streamers: rustly, flutter-modulated noise
+    fb.frequency.setValueAtTime(1500, t + .05); fb.frequency.exponentialRampToValueAtTime(800, t + .6);
+    fe.gain.setValueAtTime(0, t + .05); fe.gain.linearRampToValueAtTime(vol*.3, t + .1); fe.gain.exponentialRampToValueAtTime(.001, t + .65);
+    ft.gain.value = .5; lfo.frequency.value = rnd(22,34); lg.gain.value = .5;                // tremolo = the flutter
+    lfo.connect(lg).connect(ft.gain);
+    fl.connect(fb).connect(fe).connect(ft).connect(master); fl.start(t + .05); lfo.start(t + .05); lfo.stop(t + .7);
+  } catch (e) {}
+}
+
+// The tune: [note, beats]. Written in C major, 3/4 time.
+const HZ = { C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392, A4:440, Bb4:466.16, C5:523.25 };
+const TUNE = [
+  ["C4",.75],["C4",.25],["D4",1],["C4",1],["F4",1],["E4",2],
+  ["C4",.75],["C4",.25],["D4",1],["C4",1],["G4",1],["F4",2],
+  ["C4",.75],["C4",.25],["C5",1],["A4",1],["F4",1],["E4",1],["D4",1],
+  ["Bb4",.75],["Bb4",.25],["A4",1],["F4",1],["G4",1],["F4",2],
+];
+const BEAT = .62, GAP = 3;                      // seconds per beat, pause between repeats
+const TUNE_LEN = TUNE.reduce((s, [, b]) => s + b, 0) * BEAT;
+function playTune(t0) {                         // schedule one full run at audio time t0 (music-box sound)
+  let t = t0;
+  for (const [n, b] of TUNE) {
+    const f = HZ[n], dur = b * BEAT;
+    for (const [mult, type, vol] of [[1,"triangle",.5],[2,"sine",.12]]) {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = f*mult;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol*.35, t + .01);
+      g.gain.exponentialRampToValueAtTime(.0005, t + Math.max(dur*1.5, .5));
+      o.connect(g).connect(master); o.start(t); o.stop(t + Math.max(dur*1.5, .5) + .05);
+    }
+    t += dur;
+  }
+}
+let muted = false, musicOn = false, nextRun = 0, musicTimer;
+try { muted = localStorage.getItem("bday-muted") === "1"; } catch (e) {}
+const muteBtn = $("mute");
+function paintMute() { muteBtn.textContent = muted ? "🔇" : "🔊"; muteBtn.setAttribute("aria-label", muted ? "Unmute music" : "Mute music"); }
+function startMusic() {                         // browsers only allow audio after a tap/click, so this runs on the first one
+  if (musicOn) return;
+  try {
+    audio(); actx.resume(); musicOn = true; nextRun = actx.currentTime + .4;
+    musicTimer = setInterval(() => {            // keep the next repeat scheduled just ahead of time
+      if (actx.currentTime + 1 >= nextRun) { playTune(nextRun); nextRun += TUNE_LEN + GAP; }
+    }, 400);
+  } catch (e) {}
+}
+function setMuted(m) {
+  muted = m; paintMute();
+  try { localStorage.setItem("bday-muted", m ? "1" : "0"); } catch (e) {}
+  if (master) master.gain.setTargetAtTime(m ? 0 : 1, actx.currentTime, .05);
+}
+muteBtn.addEventListener("click", () => { if (!musicOn) { startMusic(); if (muted) setMuted(false); return; } setMuted(!muted); });
+addEventListener("pointerdown", e => { if (!e.target.closest("#mute")) startMusic(); }, { once: false });   // first tap anywhere starts the tune
+document.addEventListener("visibilitychange", () => { if (actx && musicOn) document.hidden ? actx.suspend() : actx.resume(); });
+paintMute();
+
+/* ================= particles / fireworks (one canvas) ================= */
+const cv = $("fx"), ctx = cv.getContext("2d");
+let W, H, parts = [], loop = false;
+function resize(){ const r = devicePixelRatio || 1; W = innerWidth; H = innerHeight;
+  cv.width = W*r; cv.height = H*r; ctx.setTransform(r,0,0,r,0,0); }
+addEventListener("resize", resize); resize();
+
+function add(p){ parts.push(p); if (!loop){ loop = true; requestAnimationFrame(tick); } }
+function tick(){
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.fillStyle = "rgba(0,0,0,.28)"; ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation = "source-over";
+  const done = parts.filter(p => p.t >= p.life);
+  parts = parts.filter(p => p.t < p.life);
+  done.forEach(p => p.end && p.end());            // p.end = optional callback (rocket -> burst); runs after the filter so the burst isn't discarded
+  for (const p of parts) {
+    p.vy += p.g; p.vx *= p.drag; p.vy *= p.drag; p.x += p.vx; p.y += p.vy; p.t++; p.r += p.vr;
+    ctx.globalAlpha = Math.max(0, 1 - p.t/p.life);
+    ctx.fillStyle = p.c;
+    if (p.rect) { ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); ctx.restore(); }
+    else { ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,6.283); ctx.fill(); }
+  }
+  ctx.globalAlpha = 1;
+  if (parts.length || fireworksOn) requestAnimationFrame(tick);
+  else { loop = false; ctx.clearRect(0,0,W,H); }
+}
+function burst(x, y, color, n = 22, k = 1) {      // balloon pop; k scales speed & particle size with depth
+  for (let i = 0; i < n; i++) { const a = rnd(0,6.283), v = rnd(2,8)*k;
+    add({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,g:.05*k,drag:.95,s:rnd(2,4.5)*k,c:color,t:0,life:rnd(25,45),r:0,vr:0}); }
+}
+function confetti(n = 140) {
+  for (let i = 0; i < n; i++)
+    add({x:W/2+rnd(-60,60),y:H*.7,vx:rnd(-9,9),vy:rnd(-17,-6),g:.28,drag:.99,s:rnd(6,11),
+         c:COLORS[Math.random()*COLORS.length|0],t:0,life:rnd(90,150),r:rnd(0,6),vr:rnd(-.3,.3),rect:true});
+}
+let fireworksOn = false;
+function firework() {
+  // a rocket climbs with a whistle, then bursts with a crack, a boom and crackling sparks
+  const x = rnd(W*.12,W*.88), y = rnd(H*.12,H*.45), c = COLORS[Math.random()*COLORS.length|0], n = 64, climb = 28;
+  add({x, y:H, vx:0, vy:-(H - y)/climb, g:0, drag:1, s:2.4, c:"#ffe0a8", t:0, life:climb, r:0, vr:0,
+    end() {
+      for (let i = 0; i < n; i++) { const a = i/n*6.283, v = rnd(2.5,6.5);
+        add({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,g:.06,drag:.965,s:rnd(1.6,3),c,t:0,life:rnd(55,85),r:0,vr:0}); }
+      for (let i = 0; i < 18; i++) { const a = rnd(0,6.283), v = rnd(.5,3);          // slow glittering sparks that hang and fall
+        add({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,g:.05,drag:.96,s:rnd(1,1.8),c:"#fff",t:0,life:rnd(70,110),r:0,vr:0}); }
+    }});
+}
+
+/* ================= balloons ================= */
+// depth config: far -> near. Bigger, sharper, faster-moving parallax for near ones.
+const DEPTHS = [
+  { layer:"L1", count:18, size:[34,48], blur:"1.6px", op:.55, par:14, rise:[13,19] },
+  { layer:"L2", count:13, size:[56,74], blur:"0.6px", op:.8,  par:32, rise:[9,13] },
+  { layer:"L3", count:6, size:[90,115], blur:"0px",  op:1,   par:70, rise:[6,9] },
+  // index 3: the horizon layer. Tiny, faint balloons that only ever drift up (see "ambient" below)
+  { layer:"L0", count:0, size:[16,26], blur:"2.2px", op:.38, par:6, rise:[28,42] },
+];
+// pick a spawn spot that doesn't sit behind the cake (layers are inset 40px and shift with parallax, so keep a margin)
+function freeSpot(s) {
+  const cr = document.querySelector(".cake").getBoundingClientRect();
+  const keep = { l: cr.left - 25, r: cr.right + 25, t: cr.top - 70 };   // tight margin; t covers candles/flames
+  const cakeX = (cr.left + cr.right)/2;
+  let x, y;
+  for (let i = 0; i < 60; i++) {
+    // 70% of tries cluster around the cake, the rest roam the whole sky
+    const near = Math.random() < .7;
+    const px = near ? cakeX + rnd(-1,1)*Math.min(innerWidth*.45, 340) - s/2 : rnd(0, innerWidth - s);
+    const py = near ? rnd(innerHeight*.25, innerHeight*.85) : rnd(innerHeight*.08, innerHeight*.8);
+    x = (px + 40)/(innerWidth + 80)*100; y = (py + 40)/(innerHeight + 80)*100;
+    const hitsCake = px + s > keep.l && px < keep.r && py + s*1.3 > keep.t;   // body only: strings may hang behind
+    if (!hitsCake && x > 0 && x < 96) break;
+  }
+  return { x, y };
+}
+function makeBalloon(layerEl, cfg, opts = {}) {
+  const el = document.createElement("div"); el.className = "balloon";
+  const c = COLORS[Math.random()*COLORS.length|0], s = rnd(...cfg.size);
+  el.style.setProperty("--c", c); el.style.setProperty("--s", s + "px");
+  el.style.setProperty("--blur", cfg.blur); el.style.setProperty("--op", cfg.op);
+  el.style.setProperty("--dur", rnd(4.5,8) + "s"); el.style.setProperty("--delay", -rnd(0,6) + "s");
+  el.innerHTML = '<div class="sway"><div class="body"></div><div class="string"></div></div>';
+  if (opts.rise) { el.classList.add("rise"); el.style.setProperty("--rd", rnd(...cfg.rise) + "s");   // far balloons rise slower
+    el.style.left = rnd(0,95) + "%"; el.style.top = "105%"; el.style.animationDelay = (opts.delay ?? rnd(0,2.5)) + "s";
+    el.addEventListener("animationend", e => { if (e.animationName === "rise") el.remove(); }); }
+  else { const p = freeSpot(s); el.style.left = p.x + "%"; el.style.top = p.y + "%"; }
+  el.querySelector(".body").addEventListener("pointerdown", e => {
+    e.preventDefault();
+    const r = el.querySelector(".body").getBoundingClientRect();
+    burst(r.left + r.width/2, r.top + r.height*.42, c, 12 + (s/5|0), Math.max(.3, Math.min(1.2, s/90)));   // pop size follows balloon size/depth
+    pop(); el.remove();
+    if (!opts.rise) setTimeout(() => makeBalloon(layerEl, cfg), rnd(2200,4500));   // respawn
+  });
+  layerEl.appendChild(el);
+  return el;
+}
+DEPTHS.forEach(cfg => { for (let i = 0; i < cfg.count; i++) makeBalloon($(cfg.layer), cfg); });
+
+// ambient: a steady trickle of far-away balloons floating up into the sky
+const FAR = DEPTHS[3], farLayer = $(FAR.layer);
+for (let i = 0; i < 9; i++) makeBalloon(farLayer, FAR, { rise:true, delay: -rnd(0, FAR.rise[1]) });   // already mid-flight on load
+setInterval(() => {
+  if (!document.hidden && farLayer.childElementCount < 16) makeBalloon(farLayer, FAR, { rise:true, delay: 0 });
+}, 2200);
+
+// parallax: layers follow the pointer (or drift on touch devices)
+let tx = 0, ty = 0, cx = 0, cy = 0;
+let mx = null, my = null;                       // cursor position for balloon nudging (null = no cursor)
+addEventListener("pointermove", e => { tx = e.clientX/innerWidth - .5; ty = e.clientY/innerHeight - .5; mx = e.clientX; my = e.clientY; });
+document.documentElement.addEventListener("mouseleave", () => mx = null);
+addEventListener("pointerup", e => { if (e.pointerType === "touch") mx = null; });
+addEventListener("deviceorientation", e => {
+  if (e.gamma == null) return; tx = Math.max(-.5, Math.min(.5, e.gamma/60)); ty = Math.max(-.5, Math.min(.5, (e.beta-40)/80));
+});
+// balloons drift away from the cursor and lean. The push fades to zero right under the cursor,
+// so a balloon never runs away from a click. Uses the separate `translate`/`rotate` CSS properties
+// so it layers on top of the sway/spawn/rise animations.
+const nstate = new WeakMap();
+function nudge() {
+  const jobs = [];
+  for (const el of document.querySelectorAll(".balloon")) {            // read phase
+    let st = nstate.get(el);
+    if (!st) { st = { b: el.querySelector(".body"), ox: 0, oy: 0 }; nstate.set(el, st); }
+    if (!st.b) continue;
+    let gx = 0, gy = 0;
+    if (mx !== null) {
+      const r = st.b.getBoundingClientRect();
+      const dx = r.left + r.width/2 - st.ox - mx, dy = r.top + r.height/2 - st.oy - my;
+      const d = Math.hypot(dx, dy), R = r.width*1.6 + 40;
+      if (d < R && d > .5) { const f = Math.sin(Math.PI*d/R) * r.width*.35; gx = dx/d*f; gy = dy/d*f*.6; }
+    }
+    jobs.push([el, st, gx, gy]);
+  }
+  for (const [el, st, gx, gy] of jobs) {                                // write phase
+    st.ox += (gx - st.ox)*.12; st.oy += (gy - st.oy)*.12;
+    if (Math.abs(st.ox) < .05 && Math.abs(st.oy) < .05 && !gx && !gy) { st.ox = st.oy = 0; el.style.translate = el.style.rotate = ""; continue; }
+    el.style.translate = `${st.ox}px ${st.oy}px`; el.style.rotate = `${st.ox*.25}deg`;
+  }
+}
+(function par(){
+  if (!reduce) nudge();
+  cx += (tx - cx)*.06; cy += (ty - cy)*.06;
+  if (!reduce) DEPTHS.forEach(d => $(d.layer).style.transform = `translate(${-cx*d.par}px,${-cy*d.par*.6}px)`);
+  requestAnimationFrame(par);
+})();
+
+/* ================= candles & finale ================= */
+const candleBox = $("candles");
+candleBox.style.setProperty("--gap", CONFIG.age > 6 ? "6px" : "14px");
+let lit = 0, finaleTimers = [];
+function lightCandles() {
+  candleBox.innerHTML = ""; lit = CONFIG.age;
+  for (let i = 0; i < CONFIG.age; i++) {
+    const c = document.createElement("div"); c.className = "candle"; c.innerHTML = '<div class="flame"></div>';
+    c.addEventListener("pointerdown", () => {
+      if (c.classList.contains("out")) return;
+      c.classList.add("out"); blowOut();
+      if (--lit === 0) finale();
+    });
+    candleBox.appendChild(c);
+  }
+}
+// sit the message card just under the title, however many lines the title wraps to (longer translations wrap more)
+function placeFinale() { $("finale").style.top = (document.querySelector("header").getBoundingClientRect().bottom + 14) + "px"; }
+addEventListener("resize", placeFinale);
+function finale() {
+  placeFinale();
+  $("hint").style.opacity = 0;
+  $("dim").classList.add("on");                                  // 1. lights out
+  const later = (f, ms) => finaleTimers.push(setTimeout(f, ms));
+  later(() => {                                                   // 2. surprise
+    $("dim").classList.remove("on");
+    $("finale").classList.add("show");
+    confetti(180);
+    partyPopper(0); partyPopper(.17, .3); partyPopper(.36, .32);    // three poppers going off in quick succession
+    fireworksOn = true;
+    for (let i = 0; i < 14; i++) later(firework, i * 450);
+    later(() => fireworksOn = false, 14*450);
+    // 3. balloon release, across all three depths so pops scale from tiny to big
+    [[2,14],[1,20],[0,26]].forEach(([d,n]) => { for (let i = 0; i < n; i++) makeBalloon($(DEPTHS[d].layer), DEPTHS[d], { rise:true }); });
+  }, 1400);
+}
+$("again").addEventListener("click", () => {
+  finaleTimers.forEach(clearTimeout); finaleTimers = []; fireworksOn = false;
+  $("finale").classList.remove("show"); $("hint").style.opacity = 1;
+  $("hint").textContent = "Round two! Blow them out again ✨"; lightCandles();
+});
+lightCandles();
+</script>
+</body>
+</html>
