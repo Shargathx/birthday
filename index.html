@@ -99,6 +99,17 @@
   #mute{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 14px);right:14px;z-index:30;width:44px;height:44px;margin:0;padding:0;
         font-size:1.2rem;background:#ffffff2e;color:#fff;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
         box-shadow:0 2px 10px #0003;display:flex;align-items:center;justify-content:center}
+  /* "turn sound on?" popup, anchored just above the mute button */
+  #soundAsk{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom) + 70px);z-index:31;max-width:min(230px,calc(100vw - 28px));
+            padding:12px 14px 14px;border-radius:16px;background:rgba(27,11,58,.88);color:#fff;text-align:center;
+            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 8px 28px #0006;
+            opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .35s,transform .35s}
+  #soundAsk.show{opacity:1;transform:none;pointer-events:auto}
+  #soundAsk::after{content:"";position:absolute;right:16px;bottom:-7px;width:14px;height:14px;background:inherit;transform:rotate(45deg);border-radius:3px}
+  #soundAsk p{font-size:.95rem;font-weight:600}
+  #soundAsk div{display:flex;gap:8px;justify-content:center;margin-top:10px}
+  #soundAsk button{margin:0;padding:7px 14px;font-size:.85rem}
+  #soundAsk button.ghost{background:#ffffff26;color:#fff;font-weight:600}
   @media (prefers-reduced-motion:reduce){.balloon .sway,.balloon .string,.flame{animation:none!important}}
 </style>
 </head>
@@ -131,7 +142,11 @@
   <p class="hint" id="hint">Tee õhupallid katki 🎈 ja puhu küündlad ära! ✨</p>
 </div>
 
-<button id="mute" aria-label="Mute music" title="Music on/off">🔊</button>
+<div id="soundAsk" role="dialog" aria-label="Heli">
+  <p>Lülita heli sisse? 🎵</p>
+  <div><button id="askYes">Lülita sisse</button><button id="askNo" class="ghost">Ei</button></div>
+</div>
+<button id="mute" aria-label="Unmute music" title="Music on/off">🔇</button>
 <canvas id="fx"></canvas>
 
 <script>
@@ -249,9 +264,8 @@ function playTune(t0) {                         // schedule one full run at audi
     t += dur;
   }
 }
-let muted = false, musicOn = false, nextRun = 0, musicTimer;
-try { muted = localStorage.getItem("bday-muted") === "1"; } catch (e) {}
-const muteBtn = $("mute");
+let muted = true, musicOn = false, nextRun = 0, musicTimer;      // silent until the visitor says yes (also required by browser autoplay rules)
+const muteBtn = $("mute"), ask = $("soundAsk");
 function paintMute() { muteBtn.textContent = muted ? "🔇" : "🔊"; muteBtn.setAttribute("aria-label", muted ? "Unmute music" : "Mute music"); }
 function startMusic() {                         // browsers only allow audio after a tap/click, so this runs on the first one
   if (musicOn) return;
@@ -264,11 +278,14 @@ function startMusic() {                         // browsers only allow audio aft
 }
 function setMuted(m) {
   muted = m; paintMute();
-  try { localStorage.setItem("bday-muted", m ? "1" : "0"); } catch (e) {}
   if (master) master.gain.setTargetAtTime(m ? 0 : 1, actx.currentTime, .05);
 }
-muteBtn.addEventListener("click", () => { if (!musicOn) { startMusic(); if (muted) setMuted(false); return; } setMuted(!muted); });
-addEventListener("pointerdown", e => { if (!e.target.closest("#mute")) startMusic(); }, { once: false });   // first tap anywhere starts the tune
+function hideAsk() { ask.classList.remove("show"); }
+function soundOn() { hideAsk(); startMusic(); setMuted(false); }   // the music only ever starts from here, i.e. after the visitor opts in
+muteBtn.addEventListener("click", () => { hideAsk(); if (!musicOn) soundOn(); else setMuted(!muted); });
+$("askYes").addEventListener("click", soundOn);
+$("askNo").addEventListener("click", hideAsk);
+setTimeout(() => ask.classList.add("show"), 900);                 // small popup by the mute button
 document.addEventListener("visibilitychange", () => { if (actx && musicOn) document.hidden ? actx.suspend() : actx.resume(); });
 paintMute();
 
